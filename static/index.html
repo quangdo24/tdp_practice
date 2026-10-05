@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TDP Practice · Network Engineering</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="logo">◎</span> TDP Practice <span class="sub">Network Engineering · HackerRank-style</span></div>
+    <div class="filters" id="filters">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="python">Python</button>
+      <button data-filter="sql">SQL</button>
+      <button data-filter="mcq">Concepts</button>
+    </div>
+    <div class="header-right">
+      <span class="timer" id="timer" title="Time on this question">⏱ 00:00</span>
+      <span class="progress" id="progress"></span>
+      <button class="ghost small" id="resetProgress" title="Clear saved code & progress">Reset progress</button>
+    </div>
+  </header>
+
+  <main>
+    <aside id="sidebar"></aside>
+
+    <section id="problem">
+      <div class="problem-head">
+        <h1 id="qTitle">Loading…</h1>
+        <div id="qMeta" class="meta"></div>
+      </div>
+      <div id="qDesc" class="desc"></div>
+
+      <details id="schemaBox" class="box hidden">
+        <summary>Database schema &amp; data</summary>
+        <div id="schemaContent"></div>
+      </details>
+
+      <div class="box" id="hintBox">
+        <div class="box-head">
+          <span>Hints</span>
+          <span class="hint-count" id="hintCount"></span>
+          <button class="ghost small" id="hintBtn">Reveal next hint</button>
+        </div>
+        <ol id="hints"></ol>
+      </div>
+
+      <div class="box" id="solutionBox">
+        <div class="box-head">
+          <span>Reference solution</span>
+          <button class="ghost small danger" id="solutionBtn">Show solution</button>
+        </div>
+        <pre id="solution" class="hidden"></pre>
+      </div>
+    </section>
+
+    <section id="work">
+      <div id="editorWrap">
+        <div class="editor-bar">
+          <span id="langLabel" class="lang">Python 3</span>
+          <span class="kbd-help">⌘/Ctrl+Enter = Run · ⌘/Ctrl+Shift+Enter = Submit</span>
+          <button class="ghost small" id="resetCode">Reset code</button>
+        </div>
+        <textarea id="editor"></textarea>
+      </div>
+      <div id="mcqWrap" class="hidden">
+        <div id="mcqOptions"></div>
+      </div>
+      <div class="actions">
+        <button id="runBtn" class="secondary">Run</button>
+        <button id="submitBtn" class="primary">Submit</button>
+        <span id="busy" class="busy hidden">Running…</span>
+      </div>
+      <div id="console">
+        <div class="console-empty">Run your code to see results here.</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
