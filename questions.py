@@ -322,6 +322,440 @@ PYTHON_QUESTIONS = [
         ],
     },
     {
+        "id": "py-is-private",
+        "title": "Is a Private IPv4 Address?",
+        "difficulty": "Easy",
+        "category": "Python · Networking",
+        "func": "is_private",
+        "description": D("""
+            Write `is_private(ip)` that returns `True` if the IPv4 address string
+            is in an RFC 1918 private range, otherwise `False`.
+
+            Private ranges:
+            - `10.0.0.0` – `10.255.255.255`
+            - `172.16.0.0` – `172.31.255.255`
+            - `192.168.0.0` – `192.168.255.255`
+
+            Inputs are always valid dotted-decimal IPv4 addresses.
+
+            ```
+            is_private("10.1.2.3")      -> True
+            is_private("172.31.255.1")  -> True
+            is_private("172.32.0.1")    -> False
+            is_private("8.8.8.8")       -> False
+            ```
+        """),
+        "starter": D("""
+            def is_private(ip):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def is_private(ip):
+                a, b, c, d = [int(x) for x in ip.split(".")]
+                if a == 10:
+                    return True
+                if a == 172 and 16 <= b <= 31:
+                    return True
+                if a == 192 and b == 168:
+                    return True
+                return False
+        """),
+        "hints": [
+            "Split on `.` and convert each octet with `int()`.",
+            "The tricky range is 172.16–172.31: check the first octet is 172 **and** the second is between 16 and 31.",
+        ],
+        "tests": [
+            {"args": ["10.1.2.3"]},
+            {"args": ["8.8.8.8"]},
+            {"args": ["192.168.0.1"], "hidden": True},
+            {"args": ["192.169.0.1"], "hidden": True, "why": "192.169.x.x is not private."},
+            {"args": ["172.16.0.1"], "hidden": True, "why": "172.16 is the start of the /12."},
+            {"args": ["172.31.255.255"], "hidden": True, "why": "172.31 is the end of the /12."},
+            {"args": ["172.32.0.1"], "hidden": True, "why": "172.32 is public."},
+            {"args": ["172.15.0.1"], "hidden": True, "why": "172.15 is below the private range."},
+            {"args": ["10.255.255.255"], "hidden": True},
+            {"args": ["11.0.0.1"], "hidden": True},
+        ],
+    },
+    {
+        "id": "py-hostname-only",
+        "title": "Strip Domain from FQDN",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "hostname_only",
+        "description": D("""
+            Write `hostname_only(fqdn)` that returns the hostname part of a fully
+            qualified domain name — everything before the **first** `.`.
+            If there is no dot, return the string unchanged.
+
+            ```
+            hostname_only("dal1-core-01.att.net") -> "dal1-core-01"
+            hostname_only("localhost")            -> "localhost"
+            ```
+        """),
+        "starter": D("""
+            def hostname_only(fqdn):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def hostname_only(fqdn):
+                return fqdn.split(".", 1)[0]
+        """),
+        "hints": [
+            "`s.split('.', 1)` splits at most once and always returns a list with at least one element.",
+            "Indexing `[0]` works whether or not a dot was present.",
+        ],
+        "tests": [
+            {"args": ["dal1-core-01.att.net"]},
+            {"args": ["localhost"]},
+            {"args": ["a.b.c.d"], "hidden": True, "why": "Only strip up to the first dot."},
+            {"args": ["nyc1-fw-01"], "hidden": True, "why": "No dots -> return as-is."},
+            {"args": [".hidden"], "hidden": True, "why": "Leading dot -> empty hostname string."},
+            {"args": ["x."], "hidden": True, "why": "Trailing dot still splits; hostname is 'x'."},
+        ],
+    },
+    {
+        "id": "py-count-status",
+        "title": "Count Interfaces by Status",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "count_status",
+        "description": D("""
+            Given a list of interface status strings, write `count_status(statuses)`
+            that returns a dict mapping each distinct status to how many times it
+            appears. Statuses with count 0 should not appear (only values present
+            in the list).
+
+            ```
+            count_status(["up", "down", "up", "admin-down", "up"])
+            -> {"up": 3, "down": 1, "admin-down": 1}
+
+            count_status([]) -> {}
+            ```
+        """),
+        "starter": D("""
+            def count_status(statuses):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def count_status(statuses):
+                counts = {}
+                for s in statuses:
+                    counts[s] = counts.get(s, 0) + 1
+                return counts
+        """),
+        "hints": [
+            "`counts.get(s, 0) + 1` increments safely when the key is new.",
+            "`collections.Counter(statuses)` then `dict(...)` also works.",
+        ],
+        "tests": [
+            {"args": [["up", "down", "up", "admin-down", "up"]]},
+            {"args": [[]], "why": "Empty list -> {}."},
+            {"args": [["up", "up", "up"]], "hidden": True, "why": "Single status value."},
+            {"args": [["down"]], "hidden": True},
+            {"args": [["up", "UP", "up"]], "hidden": True, "why": "Case-sensitive: 'up' and 'UP' are different keys."},
+        ],
+    },
+    {
+        "id": "py-format-uptime",
+        "title": "Format Uptime from Seconds",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "format_uptime",
+        "description": D("""
+            Write `format_uptime(seconds)` that converts a non-negative integer
+            number of seconds into `"Hd Mm Ss"` (hours, minutes, seconds).
+
+            - Hours have **no** leading zero (`3h`, not `03h`)
+            - Minutes and seconds are always **two digits** (`05m`, `09s`)
+
+            ```
+            format_uptime(3661)  -> "1h 01m 01s"
+            format_uptime(59)    -> "0h 00m 59s"
+            format_uptime(3600)  -> "1h 00m 00s"
+            ```
+        """),
+        "starter": D("""
+            def format_uptime(seconds):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def format_uptime(seconds):
+                h = seconds // 3600
+                m = (seconds % 3600) // 60
+                s = seconds % 60
+                return f"{h}h {m:02d}m {s:02d}s"
+        """),
+        "hints": [
+            "`hours = seconds // 3600`, then work with the remainder `seconds % 3600`.",
+            "f-string padding: `f'{m:02d}'` zero-pads minutes to width 2.",
+        ],
+        "tests": [
+            {"args": [3661]},
+            {"args": [59]},
+            {"args": [3600], "hidden": True},
+            {"args": [0], "hidden": True, "why": "Zero seconds."},
+            {"args": [86400], "hidden": True, "why": "Exactly 24 hours."},
+            {"args": [61], "hidden": True, "why": "1 minute 1 second -> 0h 01m 01s."},
+            {"args": [7200], "hidden": True, "why": "Exactly 2 hours."},
+        ],
+    },
+    {
+        "id": "py-unique-sorted",
+        "title": "Unique Sorted Hostnames",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "unique_sorted",
+        "description": D("""
+            Write `unique_sorted(hostnames)` that returns a new list of the unique
+            hostnames from the input, sorted alphabetically (case-sensitive,
+            plain string order).
+
+            ```
+            unique_sorted(["nyc1-fw-01", "dal1-core-01", "nyc1-fw-01", "atl1-acc-01"])
+            -> ["atl1-acc-01", "dal1-core-01", "nyc1-fw-01"]
+            ```
+        """),
+        "starter": D("""
+            def unique_sorted(hostnames):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def unique_sorted(hostnames):
+                return sorted(set(hostnames))
+        """),
+        "hints": [
+            "`set(hostnames)` removes duplicates; `sorted(...)` returns a sorted list.",
+            "Don't sort first then unique by hand unless you want the practice — set + sorted is idiomatic.",
+        ],
+        "tests": [
+            {"args": [["nyc1-fw-01", "dal1-core-01", "nyc1-fw-01", "atl1-acc-01"]]},
+            {"args": [[]], "why": "Empty -> []."},
+            {"args": [["a", "a", "a"]], "hidden": True},
+            {"args": [["b", "A", "a"]], "hidden": True, "why": "Case-sensitive: 'A' < 'a' < 'b' in ASCII."},
+            {"args": [["z"]], "hidden": True},
+        ],
+    },
+    {
+        "id": "py-avg-latency",
+        "title": "Average Latency",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "avg_latency",
+        "description": D("""
+            Write `avg_latency(samples)` that returns the average of a list of
+            numeric latency samples, rounded to **2** decimal places.
+            If the list is empty, return `None`.
+
+            ```
+            avg_latency([10, 20, 30]) -> 20.0
+            avg_latency([1, 2])       -> 1.5
+            avg_latency([])           -> None
+            ```
+        """),
+        "starter": D("""
+            def avg_latency(samples):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def avg_latency(samples):
+                if not samples:
+                    return None
+                return round(sum(samples) / len(samples), 2)
+        """),
+        "hints": [
+            "Guard the empty list first so you don't divide by zero.",
+            "`round(value, 2)` handles the decimal places.",
+        ],
+        "tests": [
+            {"args": [[10, 20, 30]]},
+            {"args": [[1, 2]]},
+            {"args": [[]], "why": "Empty list -> None (don't divide by zero)."},
+            {"args": [[5]], "hidden": True},
+            {"args": [[10, 11, 12]], "hidden": True, "why": "11.0 exactly."},
+            {"args": [[1, 1, 2]], "hidden": True, "why": "4/3 = 1.333... -> 1.33."},
+            {"args": [[0, 0, 0]], "hidden": True},
+        ],
+    },
+    {
+        "id": "py-prefix-addresses",
+        "title": "Total Addresses in a Prefix",
+        "difficulty": "Easy",
+        "category": "Python · Networking",
+        "func": "prefix_addresses",
+        "description": D("""
+            Write `prefix_addresses(prefix)` that returns the **total** number of
+            IPv4 addresses in a CIDR prefix (including network and broadcast).
+            Unlike usable-host counts, do **not** subtract 2.
+
+            - Valid prefix: integer 0..32 → `2^(32 - prefix)`
+            - Invalid prefix (outside 0..32) → `-1`
+
+            ```
+            prefix_addresses(24) -> 256
+            prefix_addresses(30) -> 4
+            prefix_addresses(32) -> 1
+            prefix_addresses(33) -> -1
+            ```
+        """),
+        "starter": D("""
+            def prefix_addresses(prefix):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def prefix_addresses(prefix):
+                if prefix < 0 or prefix > 32:
+                    return -1
+                return 2 ** (32 - prefix)
+        """),
+        "hints": [
+            "Validate the range first, then `2 ** (32 - prefix)`.",
+            "Remember `^` in Python is XOR, not exponentiation.",
+        ],
+        "tests": [
+            {"args": [24]},
+            {"args": [30]},
+            {"args": [32], "hidden": True},
+            {"args": [0], "hidden": True, "why": "/0 has 2^32 addresses."},
+            {"args": [31], "hidden": True},
+            {"args": [8], "hidden": True},
+            {"args": [33], "hidden": True},
+            {"args": [-1], "hidden": True},
+        ],
+    },
+    {
+        "id": "py-filter-vendor",
+        "title": "Filter Devices by Vendor",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "filter_vendor",
+        "description": D("""
+            Write `filter_vendor(devices, vendor)` that returns the hostnames of
+            devices whose `"vendor"` matches `vendor` **case-insensitively**.
+            Preserve the original order from the input list.
+
+            Each device is a dict with at least `"hostname"` and `"vendor"`.
+
+            ```
+            filter_vendor([
+                {"hostname": "r1", "vendor": "Cisco"},
+                {"hostname": "r2", "vendor": "Juniper"},
+                {"hostname": "r3", "vendor": "cisco"},
+            ], "CISCO")
+            -> ["r1", "r3"]
+            ```
+        """),
+        "starter": D("""
+            def filter_vendor(devices, vendor):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def filter_vendor(devices, vendor):
+                target = vendor.lower()
+                return [d["hostname"] for d in devices if d["vendor"].lower() == target]
+        """),
+        "hints": [
+            "Compare `.lower()` on both sides so case doesn't matter.",
+            "A list comprehension keeps order and reads cleanly.",
+        ],
+        "tests": [
+            {"args": [[{"hostname": "r1", "vendor": "Cisco"}, {"hostname": "r2", "vendor": "Juniper"}, {"hostname": "r3", "vendor": "cisco"}], "CISCO"]},
+            {"args": [[{"hostname": "a", "vendor": "Arista"}], "Nokia"], "why": "No matches -> []."},
+            {"args": [[], "Cisco"], "hidden": True, "why": "Empty inventory."},
+            {"args": [[{"hostname": "x", "vendor": "Palo Alto"}, {"hostname": "y", "vendor": "palo alto"}], "Palo Alto"],
+             "hidden": True, "why": "Case-insensitive match with spaces."},
+            {"args": [[{"hostname": "a", "vendor": "Cisco"}, {"hostname": "b", "vendor": "Cisco"}], "cisco"],
+             "hidden": True, "why": "Preserve input order."},
+        ],
+    },
+    {
+        "id": "py-max-speed",
+        "title": "Fastest Interface Speed",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "max_speed",
+        "description": D("""
+            Interfaces are given as `[name, speed_mbps]` pairs. Write
+            `max_speed(interfaces)` that returns the highest `speed_mbps`.
+            If the list is empty, return `None`.
+
+            ```
+            max_speed([["ge-0/0/0", 1000], ["xe-0/0/0", 10000], ["Et1", 25000]])
+            -> 25000
+
+            max_speed([]) -> None
+            ```
+        """),
+        "starter": D("""
+            def max_speed(interfaces):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def max_speed(interfaces):
+                if not interfaces:
+                    return None
+                return max(speed for name, speed in interfaces)
+        """),
+        "hints": [
+            "Unpack each pair: `for name, speed in interfaces`.",
+            "`max(...)` over the speeds; handle the empty list before calling max.",
+        ],
+        "tests": [
+            {"args": [[["ge-0/0/0", 1000], ["xe-0/0/0", 10000], ["Et1", 25000]]]},
+            {"args": [[]], "why": "Empty -> None."},
+            {"args": [[["Gi1/0/1", 1000]]], "hidden": True},
+            {"args": [[["a", 100], ["b", 100], ["c", 50]]], "hidden": True, "why": "Ties: either 100 is fine; return the value."},
+            {"args": [[["x", 0], ["y", 1]]], "hidden": True},
+        ],
+    },
+    {
+        "id": "py-common-vlans",
+        "title": "Common VLANs on Two Switches",
+        "difficulty": "Easy",
+        "category": "Python · Data",
+        "func": "common_vlans",
+        "description": D("""
+            Write `common_vlans(vlans_a, vlans_b)` that returns a sorted list of
+            VLAN IDs that appear in **both** lists (intersection). Duplicates
+            within a list should not matter.
+
+            ```
+            common_vlans([10, 20, 30, 20], [20, 40, 10]) -> [10, 20]
+            common_vlans([1, 2], [3, 4])                 -> []
+            ```
+        """),
+        "starter": D("""
+            def common_vlans(vlans_a, vlans_b):
+                # your code here
+                pass
+        """),
+        "solution": D("""
+            def common_vlans(vlans_a, vlans_b):
+                return sorted(set(vlans_a) & set(vlans_b))
+        """),
+        "hints": [
+            "Convert both lists to sets, then use `&` (intersection).",
+            "`sorted(...)` puts the result in ascending order.",
+        ],
+        "tests": [
+            {"args": [[10, 20, 30, 20], [20, 40, 10]]},
+            {"args": [[1, 2], [3, 4]]},
+            {"args": [[], [1, 2]], "hidden": True, "why": "Empty side -> []."},
+            {"args": [[5, 5, 5], [5]], "hidden": True, "why": "Duplicates don't change the intersection."},
+            {"args": [[100, 200, 300], [300, 200, 100]], "hidden": True, "why": "Result must be sorted."},
+            {"args": [[1], [1]], "hidden": True},
+        ],
+    },
+    {
         "id": "py-network-address",
         "title": "Compute the Network Address",
         "difficulty": "Medium",
@@ -1059,6 +1493,243 @@ SQL_QUESTIONS = [
             "Filtering `status = 'down'` misses `admin-down` interfaces.",
             "Alias `i.name AS interface` to match the expected column name.",
         ],
+    },
+    {
+        "id": "sql-all-routers",
+        "title": "List All Routers",
+        "difficulty": "Easy",
+        "description": D("""
+            List the `hostname` and `vendor` of every device whose
+            `device_type` is `router`. Order by `hostname`.
+
+            **Columns:** `hostname`, `vendor`
+        """),
+        "solution": D("""
+            SELECT hostname, vendor
+            FROM devices
+            WHERE device_type = 'router'
+            ORDER BY hostname;
+        """),
+        "ordered": True,
+        "hints": [
+            "`WHERE device_type = 'router'` filters the rows.",
+            "Order with `ORDER BY hostname`.",
+        ],
+        "pitfalls": ["Don't forget single quotes around the string literal."],
+    },
+    {
+        "id": "sql-west-sites",
+        "title": "Sites in the West Region",
+        "difficulty": "Easy",
+        "description": D("""
+            List every site in the `West` region. Order by `site_code`.
+
+            **Columns:** `site_code`, `city`, `state`
+        """),
+        "solution": D("""
+            SELECT site_code, city, state
+            FROM sites
+            WHERE region = 'West'
+            ORDER BY site_code;
+        """),
+        "ordered": True,
+        "hints": [
+            "Filter `WHERE region = 'West'` on the `sites` table.",
+        ],
+        "pitfalls": [],
+    },
+    {
+        "id": "sql-devices-by-vendor",
+        "title": "Device Count by Vendor",
+        "difficulty": "Easy",
+        "description": D("""
+            Count how many devices there are for each vendor. Order by
+            `device_count` descending, then `vendor` ascending.
+
+            **Columns:** `vendor`, `device_count`
+        """),
+        "solution": D("""
+            SELECT vendor, COUNT(*) AS device_count
+            FROM devices
+            GROUP BY vendor
+            ORDER BY device_count DESC, vendor;
+        """),
+        "ordered": True,
+        "hints": [
+            "`GROUP BY vendor` with `COUNT(*)`.",
+            "Alias the count as `device_count` to match the expected column name.",
+        ],
+        "pitfalls": ["Alias the aggregate: `COUNT(*) AS device_count`."],
+    },
+    {
+        "id": "sql-firewalls",
+        "title": "Firewall Inventory",
+        "difficulty": "Easy",
+        "description": D("""
+            List every firewall's hostname, site code, and install date.
+            Order by `install_date` (oldest first).
+
+            **Columns:** `hostname`, `site_code`, `install_date`
+        """),
+        "solution": D("""
+            SELECT hostname, site_code, install_date
+            FROM devices
+            WHERE device_type = 'firewall'
+            ORDER BY install_date;
+        """),
+        "ordered": True,
+        "hints": [
+            "`WHERE device_type = 'firewall'`.",
+        ],
+        "pitfalls": [],
+    },
+    {
+        "id": "sql-fast-interfaces",
+        "title": "10 Gbps or Faster Interfaces",
+        "difficulty": "Easy",
+        "description": D("""
+            List interfaces with `speed_mbps` **greater than or equal to** 10000,
+            along with the device hostname. Order by `speed_mbps` descending,
+            then `hostname`, then interface name.
+
+            **Columns:** `hostname`, `interface`, `speed_mbps`
+        """),
+        "solution": D("""
+            SELECT d.hostname, i.name AS interface, i.speed_mbps
+            FROM interfaces i
+            JOIN devices d ON d.device_id = i.device_id
+            WHERE i.speed_mbps >= 10000
+            ORDER BY i.speed_mbps DESC, d.hostname, i.name;
+        """),
+        "ordered": True,
+        "hints": [
+            "JOIN `interfaces` to `devices` on `device_id`.",
+            "Alias `i.name AS interface`.",
+            "`>= 10000` includes exactly 10 Gbps links.",
+        ],
+        "pitfalls": [
+            "Using `>` instead of `>=` drops interfaces that are exactly 10000 Mbps.",
+            "Alias the interface name column as `interface`.",
+        ],
+    },
+    {
+        "id": "sql-distinct-vendors",
+        "title": "Distinct Vendors",
+        "difficulty": "Easy",
+        "description": D("""
+            Return a sorted list of every distinct vendor present in the
+            `devices` table.
+
+            **Columns:** `vendor`
+        """),
+        "solution": D("""
+            SELECT DISTINCT vendor
+            FROM devices
+            ORDER BY vendor;
+        """),
+        "ordered": True,
+        "hints": [
+            "`SELECT DISTINCT vendor` removes duplicates.",
+            "`ORDER BY vendor` for alphabetical order.",
+        ],
+        "pitfalls": ["Without DISTINCT (or GROUP BY) you get one row per device."],
+    },
+    {
+        "id": "sql-installed-2023",
+        "title": "Devices Installed in 2023",
+        "difficulty": "Easy",
+        "description": D("""
+            List devices whose `install_date` falls in calendar year **2023**.
+            Order by `install_date`.
+
+            **Columns:** `hostname`, `install_date`, `device_type`
+        """),
+        "solution": D("""
+            SELECT hostname, install_date, device_type
+            FROM devices
+            WHERE install_date >= '2023-01-01' AND install_date < '2024-01-01'
+            ORDER BY install_date;
+        """),
+        "ordered": True,
+        "hints": [
+            "Dates are `YYYY-MM-DD` text, so range comparisons work.",
+            "`install_date >= '2023-01-01' AND install_date < '2024-01-01'`, or `strftime('%Y', install_date) = '2023'`.",
+        ],
+        "pitfalls": [
+            "`LIKE '2023%'` also works here, but a closed/open range is the more portable habit.",
+        ],
+    },
+    {
+        "id": "sql-critical-incidents",
+        "title": "Critical Incidents",
+        "difficulty": "Easy",
+        "description": D("""
+            List every `critical` incident with the device hostname. Order by
+            `opened_at`.
+
+            **Columns:** `hostname`, `opened_at`, `category`
+        """),
+        "solution": D("""
+            SELECT d.hostname, i.opened_at, i.category
+            FROM incidents i
+            JOIN devices d ON d.device_id = i.device_id
+            WHERE i.severity = 'critical'
+            ORDER BY i.opened_at;
+        """),
+        "ordered": True,
+        "hints": [
+            "JOIN `incidents` to `devices` on `device_id`.",
+            "`WHERE severity = 'critical'`.",
+        ],
+        "pitfalls": [],
+    },
+    {
+        "id": "sql-south-devices",
+        "title": "Devices in the South Region",
+        "difficulty": "Easy",
+        "description": D("""
+            List every device located in the `South` region (via its site).
+            Order by `hostname`.
+
+            **Columns:** `hostname`, `site_code`, `city`
+        """),
+        "solution": D("""
+            SELECT d.hostname, d.site_code, s.city
+            FROM devices d
+            JOIN sites s ON s.site_code = d.site_code
+            WHERE s.region = 'South'
+            ORDER BY d.hostname;
+        """),
+        "ordered": True,
+        "hints": [
+            "JOIN `devices` to `sites` on `site_code`.",
+            "Filter on `s.region = 'South'`.",
+        ],
+        "pitfalls": ["Region lives on `sites`, not `devices` — you need a join."],
+    },
+    {
+        "id": "sql-avg-speed-by-type",
+        "title": "Average Interface Speed by Device Type",
+        "difficulty": "Easy",
+        "description": D("""
+            For each `device_type`, compute the average interface `speed_mbps`,
+            rounded to **0** decimal places. Order by `avg_speed` descending.
+
+            **Columns:** `device_type`, `avg_speed`
+        """),
+        "solution": D("""
+            SELECT d.device_type, ROUND(AVG(i.speed_mbps), 0) AS avg_speed
+            FROM interfaces i
+            JOIN devices d ON d.device_id = i.device_id
+            GROUP BY d.device_type
+            ORDER BY avg_speed DESC;
+        """),
+        "ordered": True,
+        "hints": [
+            "JOIN interfaces → devices, then `GROUP BY device_type`.",
+            "`ROUND(AVG(speed_mbps), 0)` for a whole-number average.",
+        ],
+        "pitfalls": ["Alias the aggregate as `avg_speed`."],
     },
     {
         "id": "sql-all-sites-count",

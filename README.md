@@ -2,12 +2,12 @@
 
 A HackerRank-style practice app for the **AT&T Technology Development Program (TDP)** technical assessment, Network Engineering track. Write code in the browser, check it against tests (including hidden edge cases), and get specific feedback on what went wrong.
 
-There are 46 questions in three categories:
+There are 66 questions in three categories:
 
 | Category | Count | What it covers |
 | --- | --- | --- |
-| Python | 14 | IPv4 validation, subnetting, MAC normalization, BFS hop counts, longest-prefix routing, log parsing, data cleaning, sliding windows |
-| SQL | 14 | Filtering, GROUP BY / HAVING, LEFT JOIN anti-joins, NULL handling, date math, CTEs, window functions (`ROW_NUMBER`, `LAG`) |
+| Python | 24 | IPv4 validation, private-IP checks, subnetting, MAC normalization, BFS hop counts, longest-prefix routing, log parsing, data cleaning, sliding windows |
+| SQL | 24 | Filtering, JOINs, GROUP BY / HAVING, LEFT JOIN anti-joins, NULL handling, date math, CTEs, window functions (`ROW_NUMBER`, `LAG`) |
 | Concepts | 18 | Multiple choice on OSI, subnetting, TCP/UDP, ARP, DNS, BGP/OSPF, VLANs, NAT, DHCP, and SQL/Python fundamentals |
 
 ## Getting started
